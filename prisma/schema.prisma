@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ================= ENUMS =================
+
+enum Role {
+  ADMINISTRATEUR
+  CLIENT
+  RECEPTIONNISTE
+}
+
+enum StatutChambre {
+  DISPONIBLE
+  OCCUPEE
+  MAINTENANCE
+}
+
+enum StatutReservation {
+  EN_ATTENTE
+  CONFIRMEE
+  ANNULEE
+  TERMINEE
+}
+
+// ================= MODELS =================
+
+model Utilisateur {
+  id       Int   @id @default(autoincrement())
+  clerkUserId  String   @unique
+  nom      String?
+  email    String  @unique
+  motdp    String?
+  role     Role    @default(CLIENT)
+
+  // Attributs spécifiques au Client (optionnels pour les autres rôles)
+  num_tele String?
+  CIN      String? @unique
+
+  // Relations
+  reservations    Reservation[] // 1 Client -> 0..* Réservations
+  promotionsCrees Promotion[]   // 1 Admin -> 0..* Promotions
+}
+
+model TypeChambre {
+  id      String @id @default(uuid())
+  libelle String
+  prix    Float
+
+  // Relations
+  chambres Chambre[] // 1 Type -> 1..* Chambres
+}
+
+model Chambre {
+  id_ch  String        @id @default(uuid())
+  numero String        @unique
+  status StatutChambre @default(DISPONIBLE)
+
+  // Relations (Clé étrangère vers TypeChambre)
+  id_type      String
+  type         TypeChambre   @relation(fields: [id_type], references: [id])
+  
+  reservations Reservation[] // 1 Chambre -> 0..* Réservations
+}
+
+model Promotion {
+  id          String   @id @default(uuid())
+  pourcentage Float
+  date_deb    DateTime
+  date_fin    DateTime
+
+  // Relations (Clé étrangère vers Administrateur/Utilisateur)
+  adminId      Int
+  createur     Utilisateur   @relation(fields: [adminId], references: [id])
+  
+  reservations Reservation[] // 0..1 Promotion -> 0..* Réservations
+}
+
+model Reservation {
+  id           String            @id @default(uuid())
+  date_arrivee DateTime
+  date_depart  DateTime
+  statut       StatutReservation @default(EN_ATTENTE)
+
+  // Relations (Clés étrangères)
+  clientId     Int
+  client       Utilisateur @relation(fields: [clientId], references: [id])
+
+  chambreId    String
+  chambre      Chambre     @relation(fields: [chambreId], references: [id_ch])
+
+  promotionId  String?     // Optionnel car 0..1
+  promotion    Promotion?  @relation(fields: [promotionId], references: [id])
+
+  // Relations vers les autres entités
+  facture       Facture?         // 1 Réservation -> 0..1 Facture
+  consommations Consommation[]   // 1 Réservation -> 0..* Consommations
+}
+
+model Facture {
+  id            String   @id @default(uuid())
+  montant_total Float
+  date_emission DateTime @default(now())
+
+  // Relations (Clé étrangère vers Réservation, relation 1-to-1)
+  reservationId String      @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+}
+
+model Service {
+  id          String @id @default(uuid())
+  nom_service String
+  prix_serv   Float
+
+  // Relations
+  consommations Consommation[] // 1 Service -> 0..* Consommations
+}
+
+model Consommation {
+  id        String   @id @default(uuid())
+  quantite  Int
+  prix_app  Float    // Le prix du service au moment de l'achat
+  date_cons DateTime @default(now())
+
+  // Relations (Clés étrangères)
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+
+  serviceId     String
+  service       Service     @relation(fields: [serviceId], references: [id])
+}
