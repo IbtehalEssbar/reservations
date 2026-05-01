@@ -1,90 +1,273 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function ClientPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (isLoaded && (!user )) {
-      router.push("/dashboard");
+    setMounted(true);
+    if (isLoaded && !user) {
+      router.push("/sign-in");
     }
   }, [user, isLoaded, router]);
 
-  if (!isLoaded || !user ) {
+  if (!isLoaded || !user || !mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"></div>
-          <p className="text-lg font-medium text-gray-600">Chargement de votre espace client...</p>
+          <div className="mx-auto mb-6 h-16 w-16 animate-spin rounded-full border-[3px] border-amber-500 border-t-transparent"></div>
+          <p className="text-lg font-light tracking-widest text-amber-500 uppercase">Préparation de votre espace...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-gray-900">Espace Client</h1>
-          <p className="text-gray-600 max-w-2xl mt-3">
-            Bienvenue dans votre espace personnel. Ici vous pouvez consulter vos réservations, gérer vos séjours et retrouver toutes vos informations de voyage.
+    <div className="min-h-screen bg-[#faf9f7] font-sans selection:bg-amber-200">
+      
+
+
+      {/* Hero Section */}
+      <section className="relative flex h-[85vh] min-h-[600px] w-full items-center justify-center overflow-hidden">
+        <Image
+          src="/images/hero.png"
+          alt="Luxury Resort Pool at Sunset"
+          fill
+          sizes="100vw"
+          className="object-cover scale-105 animate-[pulse_20s_ease-in-out_infinite_alternate]"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#faf9f7] via-transparent to-black/50" />
+        
+        <div className="relative z-10 text-center px-4 mt-16">
+          <span className="mb-4 block text-sm font-medium tracking-[0.3em] text-amber-400 uppercase">
+            Bienvenue dans l'excellence
+          </span>
+          <h1 className="mb-6 font-serif text-5xl md:text-8xl font-light text-white drop-shadow-lg">
+            Bonjour, {user.firstName || 'Monsieur'}
+          </h1>
+          <p className="mx-auto max-w-2xl text-lg md:text-xl font-light text-gray-200">
+            Votre retraite exclusive vous attend. Laissez-nous prendre soin de chaque détail de votre prochain séjour.
           </p>
         </div>
+      </section>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">Mes réservations</h2>
-            <p className="text-gray-600 mb-5">Consultez vos réservations en cours et à venir.</p>
-            <button className="inline-flex items-center justify-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">
-              Voir mes réservations
-            </button>
+      {/* Main Content */}
+      <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 -mt-24 relative z-20">
+        
+        {/* Action Dashboard - MOVED UP HERE */}
+        <section className="mb-32">
+          <div className="rounded-2xl bg-white p-8 md:p-12 shadow-2xl border border-gray-100">
+            <div className="mb-10 text-center">
+              <h2 className="font-serif text-3xl md:text-4xl text-gray-900">Votre Espace Personnel</h2>
+              <div className="mx-auto mt-4 h-0.5 w-16 bg-amber-500"></div>
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-3">
+              {/* Mes Séjours */}
+              <Link href="/client/reservations" className="group relative overflow-hidden rounded-xl bg-[#faf9f7] p-8 shadow-sm border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-all">
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700 group-hover:scale-110 transition-transform">
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-serif text-gray-900 mb-2">Mes Séjours</h3>
+                <p className="text-sm text-gray-500 font-light mb-6">Gérez vos réservations en cours et futures en toute simplicité.</p>
+                <div className="flex items-center whitespace-nowrap text-sm font-medium tracking-widest text-amber-600 uppercase group-hover:text-amber-800">
+                  Accéder <span className="ml-2 inline-block group-hover:translate-x-2 transition-transform">&rarr;</span>
+                </div>
+              </Link>
+
+              {/* Historique */}
+              <Link href="/client/historique" className="group relative overflow-hidden rounded-xl bg-[#faf9f7] p-8 shadow-sm border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-all">
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-700 group-hover:scale-110 transition-transform">
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-serif text-gray-900 mb-2">Historique</h3>
+                <p className="text-sm text-gray-500 font-light mb-6">Retrouvez les détails et factures de vos anciennes visites.</p>
+                <div className="flex items-center whitespace-nowrap text-sm font-medium tracking-widest text-slate-600 uppercase group-hover:text-slate-800">
+                  Consulter <span className="ml-2 inline-block group-hover:translate-x-2 transition-transform">&rarr;</span>
+                </div>
+              </Link>
+
+              {/* Conciergerie */}
+              <Link href="/client/support" className="group relative overflow-hidden rounded-xl bg-gray-900 p-8 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-amber-400 group-hover:scale-110 transition-transform">
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-serif text-white mb-2">Conciergerie</h3>
+                <p className="text-sm text-gray-300 font-light mb-6">Notre équipe dédiée est à votre service 24h/24 pour toute demande.</p>
+                <div className="flex items-center whitespace-nowrap text-sm font-medium tracking-widest text-amber-400 uppercase group-hover:text-amber-300">
+                  Contacter <span className="ml-2 inline-block group-hover:translate-x-2 transition-transform">&rarr;</span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Recommended Rooms Section */}
+        <section className="mb-32">
+          <div className="mb-16 text-center">
+            <h2 className="font-serif text-4xl text-gray-900">Nos Suites Exclusives</h2>
+            <div className="mx-auto mt-4 h-0.5 w-16 bg-amber-500"></div>
+            <p className="mt-6 text-gray-500 font-light text-lg">L'élégance repensée pour votre confort absolu</p>
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">Profil</h2>
-            <p className="text-gray-600 mb-5">Modifiez vos informations personnelles et préférences.</p>
-            <button className="inline-flex items-center justify-center rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700">
-              Gérer mon profil
-            </button>
+          <div className="grid gap-10 lg:grid-cols-2">
+            {/* Room Card 1 */}
+            <div className="group relative overflow-hidden rounded-sm bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+              <div className="relative h-[450px] w-full overflow-hidden">
+                <Image
+                  src="/images/ocean.png"
+                  alt="Ocean View Room"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 transition-opacity group-hover:opacity-90" />
+                <div className="absolute bottom-0 left-0 p-8 w-full">
+                  <div className="mb-3 inline-block bg-white/20 px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase backdrop-blur-md">
+                    Vue Océan
+                  </div>
+                  <h3 className="font-serif text-3xl text-white mb-2">Suite Panoramique</h3>
+                  <div className="flex items-end justify-between">
+                    <p className="text-gray-300 font-light max-w-sm line-clamp-2">
+                      Éveillez vos sens avec une vue imprenable sur l'horizon depuis votre terrasse privée.
+                    </p>
+                    <span className="text-2xl text-white font-medium">350€<span className="text-sm font-light">/nuit</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Room Card 2 */}
+            <div className="group relative overflow-hidden rounded-sm bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+              <div className="relative h-[450px] w-full overflow-hidden">
+                <Image
+                  src="/images/deluxe.png"
+                  alt="Deluxe Suite"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 transition-opacity group-hover:opacity-90" />
+                <div className="absolute bottom-0 left-0 p-8 w-full">
+                  <div className="mb-3 inline-block bg-amber-600 px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase">
+                    Signature
+                  </div>
+                  <h3 className="font-serif text-3xl text-white mb-2">Suite Royale</h3>
+                  <div className="flex items-end justify-between">
+                    <p className="text-gray-300 font-light max-w-sm line-clamp-2">
+                      L'apogée du luxe moderne avec un mobilier de créateur et un grand salon indépendant.
+                    </p>
+                    <span className="text-2xl text-white font-medium">580€<span className="text-sm font-light">/nuit</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Experiences Section */}
+        <section className="mb-16">
+          <div className="mb-16 text-center">
+            <h2 className="font-serif text-4xl text-gray-900">Expériences Inoubliables</h2>
+            <div className="mx-auto mt-4 h-0.5 w-16 bg-amber-500"></div>
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">Historique</h2>
-            <p className="text-gray-600 mb-5">Retrouvez tous vos séjours et factures passés.</p>
-            <button className="inline-flex items-center justify-center rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-purple-700">
-              Voir mon historique
-            </button>
+          <div className="grid gap-10 md:grid-cols-2">
+            <Link href="/client/restaurant" className="group cursor-pointer block">
+              <div className="relative h-[500px] w-full overflow-hidden rounded-sm shadow-lg">
+                <Image src="/images/restaurant.png" alt="Gastronomic Restaurant" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-700" />
+              </div>
+              <div className="mt-8 text-center">
+                <h3 className="text-3xl font-serif text-gray-900 group-hover:text-amber-700 transition-colors">La Table Étoilée</h3>
+                <p className="mt-3 text-gray-500 font-light max-w-md mx-auto">Une aventure culinaire signée par notre chef exécutif. Découvrez des saveurs locales raffinées.</p>
+                <span className="mt-4 inline-block border-b border-amber-600 text-sm tracking-widest text-amber-700 uppercase pb-1 group-hover:border-amber-400">Découvrir le Menu</span>
+              </div>
+            </Link>
+            
+            <Link href="/client/spa" className="group cursor-pointer block">
+              <div className="relative h-[500px] w-full overflow-hidden rounded-sm shadow-lg">
+                <Image src="/images/spa.png" alt="Luxury Spa" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-700" />
+              </div>
+              <div className="mt-8 text-center">
+                <h3 className="text-3xl font-serif text-gray-900 group-hover:text-amber-700 transition-colors">Le Spa Sérénité</h3>
+                <p className="mt-3 text-gray-500 font-light max-w-md mx-auto">Un sanctuaire de bien-être dédié à votre relaxation absolue. Laissez-vous porter par la plénitude.</p>
+                <span className="mt-4 inline-block border-b border-amber-600 text-sm tracking-widest text-amber-700 uppercase pb-1 group-hover:border-amber-400">Réserver un soin</span>
+              </div>
+            </Link>
           </div>
+        </section>
+      </main>
 
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">Offres</h2>
-            <p className="text-gray-600 mb-5">Accédez aux meilleures offres disponibles pour votre prochain séjour.</p>
-            <button className="inline-flex items-center justify-center rounded-full bg-yellow-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-yellow-700">
-              Découvrir les offres
-            </button>
+      {/* Premium Footer */}
+      <footer className="bg-[#0a0a0a] text-white pt-20 pb-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-12 md:grid-cols-4 mb-16 border-b border-gray-800 pb-16">
+            <div className="col-span-1 md:col-span-2">
+              <h2 className="text-3xl font-serif tracking-widest mb-6">L'ÉCRIN</h2>
+              <p className="text-gray-400 font-light max-w-sm mb-6">
+                L'art de recevoir revisité. Profitez d'une expérience d'hospitalité sans pareille où luxe, confort et nature se rencontrent.
+              </p>
+              <div className="flex space-x-4">
+                {/* Social Icons Placeholders */}
+                <div className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-amber-600 hover:border-amber-600 transition-colors cursor-pointer">
+                  <span>In</span>
+                </div>
+                <div className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-amber-600 hover:border-amber-600 transition-colors cursor-pointer">
+                  <span>Fb</span>
+                </div>
+                <div className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-amber-600 hover:border-amber-600 transition-colors cursor-pointer">
+                  <span>Ig</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-serif mb-6 text-amber-500">Navigation</h3>
+              <ul className="space-y-4 text-gray-400 font-light">
+                <li><Link href="/client/reservations" className="hover:text-white transition-colors">Mes Réservations</Link></li>
+                <li><Link href="/client/historique" className="hover:text-white transition-colors">Historique</Link></li>
+                <li><Link href="/client/spa" className="hover:text-white transition-colors">Le Spa</Link></li>
+                <li><Link href="/client/restaurant" className="hover:text-white transition-colors">Le Restaurant</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-serif mb-6 text-amber-500">Contact</h3>
+              <ul className="space-y-4 text-gray-400 font-light">
+                <li>123 Avenue de la Plage, Riviera</li>
+                <li>+33 1 23 45 67 89</li>
+                <li>contact@lecrin-hotel.com</li>
+                <li>Conciergerie 24/7</li>
+              </ul>
+            </div>
           </div>
-
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">Assistance</h2>
-            <p className="text-gray-600 mb-5">Contactez le service client ou consultez les FAQ.</p>
-            <button className="inline-flex items-center justify-center rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700">
-              Contacter le support
-            </button>
-          </div>
-
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="text-xl font-semibold text-gray-800 mb-3">Documents</h2>
-            <p className="text-gray-600 mb-5">Téléchargez vos confirmations et documents de voyage.</p>
-            <button className="inline-flex items-center justify-center rounded-full bg-slate-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
-              Accéder aux documents
-            </button>
+          
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 font-light">
+            <p>&copy; {new Date().getFullYear()} L'Écrin Hôtel. Tous droits réservés.</p>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <a href="#" className="hover:text-white transition-colors">Mentions Légales</a>
+              <a href="#" className="hover:text-white transition-colors">Politique de Confidentialité</a>
+            </div>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }

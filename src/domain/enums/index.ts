@@ -1,0 +1,18 @@
+export enum Role {
+  ADMINISTRATEUR = 'ADMINISTRATEUR',
+  CLIENT = 'CLIENT',
+  RECEPTIONNISTE = 'RECEPTIONNISTE',
+}
+
+export enum StatutChambre {
+  DISPONIBLE = 'DISPONIBLE',
+  OCCUPEE = 'OCCUPEE',
+  MAINTENANCE = 'MAINTENANCE',
+}
+
+export enum StatutReservation {
+  EN_ATTENTE = 'EN_ATTENTE',
+  CONFIRMEE = 'CONFIRMEE',
+  ANNULEE = 'ANNULEE',
+  TERMINEE = 'TERMINEE',
+}
