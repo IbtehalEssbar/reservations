@@ -3,9 +3,6 @@ import Link from "next/link";
 import SyncUser from "../components/SyncUser";
 import {
   ClerkProvider,
-  Show,
-  // SignedIn,
-  // SignedOut,
   UserButton,
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from "next/font/google";
@@ -40,11 +37,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         {/* <SignedIn> */}
-         <Show when="signed-in">
-  <SyncUser />
-  </Show>
-{/* </SignedIn> */}
+        <SyncUser />
         <header className="flex justify-between items-center p-4 h-16">
           <div className="flex items-center gap-3">
             <Link href="/">
