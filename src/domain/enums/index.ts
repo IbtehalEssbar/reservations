@@ -7,6 +7,7 @@ export enum Role {
 export enum StatutChambre {
   DISPONIBLE = 'DISPONIBLE',
   OCCUPEE = 'OCCUPEE',
+  RESERVEE = 'RESERVEE',
   MAINTENANCE = 'MAINTENANCE',
 }
 
@@ -15,4 +16,9 @@ export enum StatutReservation {
   CONFIRMEE = 'CONFIRMEE',
   ANNULEE = 'ANNULEE',
   TERMINEE = 'TERMINEE',
+}
+export enum StatutAvis {
+  EN_ATTENTE = 'EN_ATTENTE',
+  VALIDE = 'VALIDE',
+  REJETE = 'REJETE',
 }

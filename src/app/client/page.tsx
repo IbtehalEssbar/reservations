@@ -6,10 +6,28 @@ import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 
+interface Avis {
+  id: string;
+  clientNom: string;
+  note: number;
+  commentaire: string;
+  datePublication: string;
+}
+
 export default function ClientPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  
+  // État pour les avis
+  const [avis, setAvis] = useState<Avis[]>([]);
+  const [showAvisForm, setShowAvisForm] = useState(false);
+  const [avisFormData, setAvisFormData] = useState({
+    note: 5,
+    commentaire: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [avisMessage, setAvisMessage] = useState('');
 
   useEffect(() => {
     setMounted(true);
@@ -17,6 +35,67 @@ export default function ClientPage() {
       router.push("/sign-in");
     }
   }, [user, isLoaded, router]);
+
+  // Charger les avis validés
+  useEffect(() => {
+    if (mounted) {
+      fetchAvis();
+    }
+  }, [mounted]);
+
+  const fetchAvis = async () => {
+    try {
+      const response = await fetch('/api/avis/validates');
+      const data = await response.json();
+      if (response.ok) {
+        setAvis(data);
+      }
+    } catch (error) {
+      console.error('Erreur chargement avis:', error);
+    }
+  };
+
+  const soumettreAvis = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      setAvisMessage('Veuillez vous connecter pour laisser un avis');
+      return;
+    }
+
+    setSubmitting(true);
+    setAvisMessage('');
+
+    try {
+      const response = await fetch('/api/avis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientNom: user?.fullName || user?.primaryEmailAddress?.emailAddress || 'Client',
+          note: avisFormData.note,
+          commentaire: avisFormData.commentaire
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setAvisMessage('✅ Merci pour votre avis ! Il sera publié après validation.');
+        setAvisFormData({ note: 5, commentaire: '' });
+        setShowAvisForm(false);
+        setTimeout(() => setAvisMessage(''), 3000);
+      } else {
+        setAvisMessage('❌ ' + data.error);
+      }
+    } catch (error) {
+      setAvisMessage('❌ Erreur lors de l\'envoi');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const renderStars = (note: number) => {
+    return '⭐'.repeat(note) + '☆'.repeat(5 - note);
+  };
 
   if (!isLoaded || !user || !mounted) {
     return (
@@ -32,8 +111,6 @@ export default function ClientPage() {
   return (
     <div className="min-h-screen bg-[#faf9f7] font-sans selection:bg-amber-200">
       
-
-
       {/* Hero Section */}
       <section className="relative flex h-[85vh] min-h-[600px] w-full items-center justify-center overflow-hidden">
         <Image
@@ -63,7 +140,7 @@ export default function ClientPage() {
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 -mt-24 relative z-20">
         
-        {/* Action Dashboard - MOVED UP HERE */}
+        {/* Action Dashboard */}
         <section className="mb-32">
           <div className="rounded-2xl bg-white p-8 md:p-12 shadow-2xl border border-gray-100">
             <div className="mb-10 text-center">
@@ -72,7 +149,6 @@ export default function ClientPage() {
             </div>
             
             <div className="grid gap-6 md:grid-cols-3">
-              {/* Mes Séjours */}
               <Link href="/client/reservations" className="group relative overflow-hidden rounded-xl bg-[#faf9f7] p-8 shadow-sm border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-all">
                 <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700 group-hover:scale-110 transition-transform">
                   <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -86,7 +162,6 @@ export default function ClientPage() {
                 </div>
               </Link>
 
-              {/* Historique */}
               <Link href="/client/historique" className="group relative overflow-hidden rounded-xl bg-[#faf9f7] p-8 shadow-sm border border-gray-200 hover:shadow-lg hover:-translate-y-1 transition-all">
                 <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-700 group-hover:scale-110 transition-transform">
                   <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,7 +175,6 @@ export default function ClientPage() {
                 </div>
               </Link>
 
-              {/* Conciergerie */}
               <Link href="/client/support" className="group relative overflow-hidden rounded-xl bg-gray-900 p-8 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
                 <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-amber-400 group-hover:scale-110 transition-transform">
                   <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,7 +200,6 @@ export default function ClientPage() {
           </div>
 
           <div className="grid gap-10 lg:grid-cols-2">
-            {/* Room Card 1 */}
             <div className="group relative overflow-hidden rounded-sm bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
               <div className="relative h-[450px] w-full overflow-hidden">
                 <Image
@@ -152,7 +225,6 @@ export default function ClientPage() {
               </div>
             </div>
 
-            {/* Room Card 2 */}
             <div className="group relative overflow-hidden rounded-sm bg-white shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
               <div className="relative h-[450px] w-full overflow-hidden">
                 <Image
@@ -213,6 +285,137 @@ export default function ClientPage() {
             </Link>
           </div>
         </section>
+
+        {/* ==================== SECTION AVIS CLIENTS AJOUTÉE ==================== */}
+        <section className="mt-32 mb-20">
+          <div className="rounded-2xl bg-white p-8 md:p-12 shadow-xl border border-gray-100">
+            <div className="text-center mb-10">
+              <h2 className="font-serif text-3xl md:text-4xl text-gray-900">
+                Ce que disent nos clients
+              </h2>
+              <div className="mx-auto mt-4 h-0.5 w-16 bg-amber-500"></div>
+              <p className="mt-4 text-gray-500 font-light">
+                Des séjours authentiques, des souvenirs inoubliables
+              </p>
+            </div>
+
+            {/* Liste des avis validés */}
+            {avis.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 mb-12">
+                {avis.map((a) => (
+                  <div key={a.id} className="bg-[#faf9f7] rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <p className="font-semibold text-gray-800">{a.clientNom}</p>
+                        <div className="text-amber-500 text-sm mt-1">
+                          {renderStars(a.note)}
+                        </div>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {new Date(a.datePublication).toLocaleDateString('fr-FR')}
+                      </span>
+                    </div>
+                    <p className="text-gray-600 italic leading-relaxed">
+                      "{a.commentaire}"
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-400 mb-8">
+                <p>Soyez le premier à partager votre expérience !</p>
+              </div>
+            )}
+
+            {/* Bouton ou formulaire d'avis */}
+            {!showAvisForm ? (
+              <div className="text-center">
+                <button
+                  onClick={() => setShowAvisForm(true)}
+                  className="bg-amber-600 text-white px-8 py-3 rounded-lg hover:bg-amber-700 transition-colors font-medium tracking-wide shadow-md"
+                >
+                  ✍️ Donner mon avis
+                </button>
+              </div>
+            ) : (
+              <div className="max-w-lg mx-auto bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <h3 className="text-xl font-serif text-gray-800 mb-4 text-center">
+                  Partagez votre expérience
+                </h3>
+                
+                <form onSubmit={soumettreAvis} className="space-y-4">
+                  {/* Note étoiles */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 text-center">
+                      Votre note
+                    </label>
+                    <div className="flex justify-center gap-2">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => setAvisFormData({ ...avisFormData, note: n })}
+                          className={`text-3xl transition-all hover:scale-110 ${
+                            avisFormData.note >= n ? 'text-amber-500' : 'text-gray-300'
+                          }`}
+                        >
+                          ★
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Commentaire */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Votre commentaire
+                    </label>
+                    <textarea
+                      required
+                      rows={4}
+                      value={avisFormData.commentaire}
+                      onChange={(e) => setAvisFormData({ ...avisFormData, commentaire: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                      placeholder="Décrivez votre séjour..."
+                    />
+                  </div>
+
+                  {/* Message de retour */}
+                  {avisMessage && (
+                    <div className={`p-3 rounded-lg text-center ${
+                      avisMessage.includes('✅') 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {avisMessage}
+                    </div>
+                  )}
+
+                  {/* Boutons */}
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAvisForm(false);
+                        setAvisMessage('');
+                      }}
+                      className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 bg-amber-600 text-white py-2 rounded-lg hover:bg-amber-700 disabled:bg-amber-300 transition-colors"
+                    >
+                      {submitting ? 'Envoi...' : 'Envoyer'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
 
       {/* Premium Footer */}
@@ -225,7 +428,6 @@ export default function ClientPage() {
                 L'art de recevoir revisité. Profitez d'une expérience d'hospitalité sans pareille où luxe, confort et nature se rencontrent.
               </p>
               <div className="flex space-x-4">
-                {/* Social Icons Placeholders */}
                 <div className="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-amber-600 hover:border-amber-600 transition-colors cursor-pointer">
                   <span>In</span>
                 </div>

@@ -1,17 +1,14 @@
 import { StatutReservation } from '../enums';
-import { Utilisateur } from './Utilisateur';
-import { Chambre } from './Chambre';
 
 export interface Reservation {
   id: string;
   date_arrivee: Date;
   date_depart: Date;
+  nb_personnes: number;
   statut: StatutReservation;
-  clientId: number;
+  clientId: string;
   chambreId: string;
-  promotionId: string | null;
-
-  // Relations chargées (optionnel)
-  client?: Utilisateur;
-  chambre?: Chambre;
+  prix_total: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

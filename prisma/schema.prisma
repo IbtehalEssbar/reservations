@@ -23,6 +23,7 @@ enum Role {
 enum StatutChambre {
   DISPONIBLE
   OCCUPEE
+  RESERVEE
   MAINTENANCE
 }
 
@@ -32,7 +33,11 @@ enum StatutReservation {
   ANNULEE
   TERMINEE
 }
-
+enum StatutAvis {
+  EN_ATTENTE   // En attente de validation admin
+  VALIDE       // Apparaît sur le site
+  REJETE       // N'apparaît pas
+}
 // ================= MODELS =================
 
 model Utilisateur {
@@ -50,6 +55,7 @@ model Utilisateur {
   // Relations
   reservations    Reservation[] // 1 Client -> 0..* Réservations
   promotionsCrees Promotion[]   // 1 Admin -> 0..* Promotions
+  avis            Avis[]
 }
 
 model TypeChambre {
@@ -62,17 +68,14 @@ model TypeChambre {
 }
 
 model Chambre {
-  id_ch  String        @id @default(uuid())
-  numero String        @unique
-  status StatutChambre @default(DISPONIBLE)
-
-  // Relations (Clé étrangère vers TypeChambre)
+  id_ch        String   @id @default(cuid())
+  numero       String   @unique
+  status       StatutChambre @default(DISPONIBLE)
   id_type      String
-  type         TypeChambre   @relation(fields: [id_type], references: [id])
-  
-  reservations Reservation[] // 1 Chambre -> 0..* Réservations
+  capacite     Int      @default(2)  // ← AJOUTEZ CETTE LIGNE
+  type         TypeChambre @relation(fields: [id_type], references: [id])
+  reservations Reservation[]
 }
-
 model Promotion {
   id          String   @id @default(uuid())
   pourcentage Float
@@ -90,14 +93,19 @@ model Reservation {
   id           String            @id @default(uuid())
   date_arrivee DateTime
   date_depart  DateTime
+  nb_personnes     Int
   statut       StatutReservation @default(EN_ATTENTE)
 
   // Relations (Clés étrangères)
   clientId     Int
+  clientNom        String?
+  clientTelephone  String?
   client       Utilisateur @relation(fields: [clientId], references: [id])
 
   chambreId    String
   chambre      Chambre     @relation(fields: [chambreId], references: [id_ch])
+
+  prix_total       Float
 
   promotionId  String?     // Optionnel car 0..1
   promotion    Promotion?  @relation(fields: [promotionId], references: [id])
@@ -105,6 +113,8 @@ model Reservation {
   // Relations vers les autres entités
   facture       Facture?         // 1 Réservation -> 0..1 Facture
   consommations Consommation[]   // 1 Réservation -> 0..* Consommations
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model Facture {
@@ -138,4 +148,18 @@ model Consommation {
 
   serviceId     String
   service       Service     @relation(fields: [serviceId], references: [id])
+}
+model Avis {
+  id         String    @id @default(uuid())
+  clientId   Int
+  client     Utilisateur @relation(fields: [clientId], references: [id])
+  clientNom  String
+  note       Int       // 1 à 5 étoiles
+  commentaire String
+  statut     StatutAvis @default(EN_ATTENTE)
+  dateCreation DateTime @default(now())
+  datePublication DateTime?
+  
+  @@index([statut])
+  @@index([clientId])
 }
