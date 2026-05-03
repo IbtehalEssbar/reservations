@@ -1,5 +1,6 @@
 import { prisma } from "../../../../lib/prisma";
 import { IChambreRepository } from "../../domain/repositories/IChambreRepository";
+import { StatutChambre } from "@prisma/client";
 export class PrismaChambreRepository implements IChambreRepository {
   async findAll() { return prisma.chambre.findMany({ include: { type: true } }); }
   async findAvailable(nbPersonnes: number) {
@@ -9,6 +10,6 @@ export class PrismaChambreRepository implements IChambreRepository {
     });
   }
   async updateStatus(id: string, status: string) {
-    return prisma.chambre.update({ where: { id_ch: id }, data: { status } });
+    return prisma.chambre.update({ where: { id_ch: id }, data: { status: status as StatutChambre } });
   }
 }

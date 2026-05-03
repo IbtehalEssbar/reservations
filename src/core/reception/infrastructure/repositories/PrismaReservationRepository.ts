@@ -1,5 +1,6 @@
 import { prisma } from "../../../../lib/prisma";
 import { IReservationRepository } from "../../domain/repositories/IReservationRepository";
+import { StatutReservation } from "@prisma/client";
 export class PrismaReservationRepository implements IReservationRepository {
   async findById(id: string) { return prisma.reservation.findUnique({ where: { id }, include: { chambre: { include: { type: true } }, client: true, consommations: true } }); }
   async findAll() { return prisma.reservation.findMany({ include: { client: true, chambre: { include: { type: true } } }, orderBy: { createdAt: "desc" } }); }
@@ -10,7 +11,7 @@ export class PrismaReservationRepository implements IReservationRepository {
   }
   async create(data: any) { return prisma.reservation.create({ data }); }
   async update(id: string, data: any) { return prisma.reservation.update({ where: { id }, data }); }
-  async updateStatusAndPrice(id: string, status: string, price: number) { return prisma.reservation.update({ where: { id }, data: { statut: status, prix_total: price } }); }
+  async updateStatusAndPrice(id: string, status: string, price: number) { return prisma.reservation.update({ where: { id }, data: { statut: status as StatutReservation, prix_total: price } }); }
   async createFactureAndFinish(reservationId: string, factureData: any, chambreId: string) {
     return prisma.$transaction([
       prisma.facture.create({ data: factureData }),
