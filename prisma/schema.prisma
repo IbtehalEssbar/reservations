@@ -4,8 +4,7 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -37,6 +36,12 @@ enum StatutAvis {
   EN_ATTENTE   // En attente de validation admin
   VALIDE       // Apparaît sur le site
   REJETE       // N'apparaît pas
+}
+
+enum StatutDemande {
+  EN_ATTENTE
+  EN_COURS
+  TERMINEE
 }
 // ================= MODELS =================
 
@@ -113,6 +118,7 @@ model Reservation {
   // Relations vers les autres entités
   facture       Facture?         // 1 Réservation -> 0..1 Facture
   consommations Consommation[]   // 1 Réservation -> 0..* Consommations
+  demandes      Demande[]        // 1 Réservation -> 0..* Demandes
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
@@ -162,4 +168,16 @@ model Avis {
   
   @@index([statut])
   @@index([clientId])
+}
+
+model Demande {
+  id          String   @id @default(uuid())
+  type        String   // e.g., "Room Service", "Ménage", "Taxi"
+  description String
+  status      StatutDemande @default(EN_ATTENTE)
+  date_crea   DateTime @default(now())
+
+  // Relations
+  reservationId String
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
 }
