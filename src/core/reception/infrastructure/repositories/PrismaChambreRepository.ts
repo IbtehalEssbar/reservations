@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../../lib/prisma";
 import { IChambreRepository } from "../../domain/repositories/IChambreRepository";
-const prisma = new PrismaClient();
 export class PrismaChambreRepository implements IChambreRepository {
   async findAll() { return prisma.chambre.findMany({ include: { type: true } }); }
   async findAvailable(nbPersonnes: number) {

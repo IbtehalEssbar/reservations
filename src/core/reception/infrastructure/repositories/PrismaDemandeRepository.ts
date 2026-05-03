@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../../lib/prisma";
 import { IDemandeRepository } from "../../domain/repositories/IDemandeRepository";
-const prisma = new PrismaClient();
 export class PrismaDemandeRepository implements IDemandeRepository {
   async findAll() {
     return prisma.demande.findMany({

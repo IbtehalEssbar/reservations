@@ -1,7 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../../lib/prisma";
 import { IDashboardRepository } from "../../domain/repositories/IDashboardRepository";
 
-const prisma = new PrismaClient();
 
 export class PrismaDashboardRepository implements IDashboardRepository {
   async getArrivalsCount(date: Date): Promise<number> {

@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../../lib/prisma";
 import { IReservationRepository } from "../../domain/repositories/IReservationRepository";
-const prisma = new PrismaClient();
 export class PrismaReservationRepository implements IReservationRepository {
   async findById(id: string) { return prisma.reservation.findUnique({ where: { id }, include: { chambre: { include: { type: true } }, client: true, consommations: true } }); }
   async findAll() { return prisma.reservation.findMany({ include: { client: true, chambre: { include: { type: true } } }, orderBy: { createdAt: "desc" } }); }

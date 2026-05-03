@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../../../lib/prisma";
 import { IClientRepository } from "../../domain/repositories/IClientRepository";
-const prisma = new PrismaClient();
 export class PrismaClientRepository implements IClientRepository {
   async findAll() {
     return prisma.utilisateur.findMany({
